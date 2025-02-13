@@ -1,3 +1,4 @@
+import './GameStatus.css';
 
 function GameStatus({ currScore, bestScore }) {
     return (
