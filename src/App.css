@@ -1,15 +1,25 @@
 #root {
   margin: 0 auto;
   text-align: center;
+  min-height: 100vh;
+  background: rgb(123, 208, 150);
 }
 
 #top-level-headline {
   background: white;
   border-bottom: thin solid #ccc;
   padding-bottom: 1rem;
+  padding-top: 1rem;
+  margin-bottom: 0;
+  margin-top: 0;
 }
 
 #content-wrapper {
+  display: block;
+  padding-top: 2rem;
+}
+
+#content-container {
   max-width: 1280px;
   margin: 0 auto;
   text-align: left;
