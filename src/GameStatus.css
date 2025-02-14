@@ -1,4 +1,9 @@
+#game-status {
+    text-align: center;
+}
+
 #game-status h1 {
     display: inline-block;
     margin-right: 2rem;
 }
+

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './Game.css';
+import GIPHY_API_KEY from './GIPHY_API_KEY';
 
-const GIPHY_API_KEY = 'gHzHSBTzZBfpFgygOZbgHNOkxt1qXvyH';
 
 function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     // const [cards, setCards] = useState([]);
@@ -106,7 +106,7 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
 
     return (
         <div id="game-output">
-            <h1>Game Output</h1>
+            <h1>Ready to play? Get clicking!</h1>
             {randomCardDraw}
         </div>
     )
