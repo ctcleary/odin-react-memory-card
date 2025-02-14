@@ -1,3 +1,24 @@
 #game-output h1 {
     font-size: 1.5rem;
 }
+
+#card-draw {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 100%;
+}
+
+.card {
+    padding: 1rem;
+    background: white;
+    border: thin solid #0f5729;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.card:hover {
+    background: rgb(19, 177, 56);
+    filter: drop-shadow(3px 3px 3px rgb(38, 135, 82));
+}
