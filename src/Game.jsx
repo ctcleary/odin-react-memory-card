@@ -5,20 +5,27 @@ import GIPHY_API_KEY from './GIPHY_API_KEY';
 
 function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     const [hasPlayed, setHasPlayed] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
+    const [hasChangedCount, setHasChangedCount] = useState(false);
+
     const [prevScore, setPrevScore] = useState(0);
 
     const [cardObjs, setCardObjs] = useState([]);
     const [shuffledCards, setShuffledCards] = useState([]);
+    const [cardCount, setCardCount] = useState(12);
 
     const [clickedCardIDs, setClickedCardIDs] = useState([]);
 
+    const [searchStr, setSearchStr] = useState('corgis');
+
     const loadingText = "Loading...";
-    const fetchError = "Error fetching data from server. Aborting."
+    const fetchError = "Error fetching data from server. Aborting.";
+    const noResults = "No results for current search string.";
     const [statusText, setStatusText] = useState(loadingText);
 
     async function getGiphyImages() {
         const response = await fetch(
-            `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&rating=g&q=corgis`,
+            `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&rating=g&q=${searchStr}`,
             {
                 mode: 'cors'
             }
@@ -32,9 +39,15 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         // console.log(imgJson.data);
         const imgData = imgJson.data;
 
+        if (imgData.length === 0) {
+            console.log('No results');
+            setStatusText(noResults);
+            return;
+        }
+
         const cardObjs = [];
         if (imgData) {
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < cardCount; i++) {
                 const entry = imgData[i];
                 // console.log(entry.images.downsized.url);
                 cardObjs.push({
@@ -48,9 +61,25 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     }
 
     useEffect(() => {
-        console.log('get giphy images');
-        getGiphyImages();
-    }, []);
+        if (searchStr !== 'corgis' ) { setHasSearched(true); }
+        if (cardCount !== 12) { setHasChangedCount(true); }
+
+        // Only immediately search if nothing has happened.
+        if (!hasPlayed && !hasSearched && !hasChangedCount) {
+            getGiphyImages();
+            return () => {};
+        }
+
+        // Delay new search for images when searchStr changes
+        const timeout = setTimeout(() => {
+            getGiphyImages();
+        }, 500);
+
+        return () => {
+            clearTimeout(timeout);
+        };
+
+    }, [searchStr, cardCount]);
 
     
     useEffect(() => {
@@ -59,8 +88,12 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
             return;
         }
 
-        const loseCover = document.querySelector('#lose-cover');
-        loseCover.animate([
+        flashCoverEl();
+    }, [currScore])
+
+    function flashCoverEl() {
+        const coverEl = document.querySelector('#cover');
+        coverEl.animate([
             {
                 display: 'grid',
                 opacity: 0
@@ -73,7 +106,7 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
                 opacity: 0
             }
         ], 1750);
-    }, [currScore])
+    }
 
     function getShuffledCards(cardObjArr) {
         if (cardObjArr.length === 0) {
@@ -89,29 +122,8 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         return shuffled;
     }
 
-    // function createRandomCardDraw() {
-    //     const shuffledCards = getShuffledCards();
-    //     return (
-    //         <>
-    //         { !shuffledCards.length ? <div>{statusText}</div> :
-    //             shuffledCards.map((obj, i) => {
-    //                 return (
-    //                     <div
-    //                         className="card"
-    //                         key={obj.id}
-    //                         onClick={() => { onCardClick(obj.id); }}
-    //                     >
-    //                         <img src={obj.url} />
-    //                     </div>
-    //                 )
-    //             })
-    //         }
-    //         </>
-    //     )
-    // }
-
-    function resetGame() {
-        setPrevScore(currScore);
+    function resetGame(score) {
+        setPrevScore(score);
         setCurrScore(0);
         setClickedCardIDs([]);
     }
@@ -125,10 +137,15 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
             if (currScore > bestScore) {
                 setBestScore(currScore);
             }
-            resetGame();
-
+            resetGame(currScore);
+            return;
+        }
+        setCurrScore(currScore + 1);
+        
+        if (currScore + 1 >= cardCount) {
+            flashCoverEl();
+            resetGame(currScore + 1);
         } else {
-            setCurrScore(currScore + 1);
             setClickedCardIDs([
                 ...clickedCardIDs,
                 cardID
@@ -140,25 +157,40 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     return (
         <div id="game-output">
             <h1>Ready to play? Get clicking!</h1>
-            <div id="lose-cover">
-                Oops! Try again!<br/>
-                Your Score: {prevScore}<br/>
-                Best Score: {bestScore}
+            <div id="search-section">
+                <label>
+                    Change Image Search:
+                    <input type="text" value={searchStr} onChange={(evt) => { setSearchStr(evt.target.value); }} />
+                </label>
+                <label>
+                    Number of Cards:
+                    <input type="number" value={cardCount} onChange={(evt => { setCardCount(parseInt(evt.target.value, 10)); })} />
+                </label>
+            </div>
+            <div id="cover">
+                { prevScore >= cardCount ? <>You win!</> :
+                    <>
+                    Oops! Try again!<br/>
+                    Your Score: {prevScore}<br/>
+                    Best Score: {bestScore}
+                    </>
+                }
             </div>
             <div id="card-draw">
-                {/* {randomCardDraw}  */}
-                { !shuffledCards.length ? <div>{statusText}</div> :
-                shuffledCards.map((obj, i) => {
-                    return (
-                        <div
-                            className="card"
-                            key={obj.id}
-                            onClick={() => { onCardClick(obj.id); }}
-                        >
-                            <img src={obj.url} />
-                        </div>
-                    )
-                })
+                { 
+                    !shuffledCards.length ? <div>{statusText}</div> :
+
+                    shuffledCards.map((obj, i) => {
+                        return (
+                            <div
+                                className="card"
+                                key={obj.id}
+                                onClick={() => { onCardClick(obj.id); }}
+                            >
+                                <img src={obj.url} />
+                            </div>
+                        )
+                    })
             }
             </div>
         </div>
