@@ -7,7 +7,8 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     const [hasPlayed, setHasPlayed] = useState(false);
     const [prevScore, setPrevScore] = useState(0);
 
-    const [cardImgUrls, setCardImgUrls] = useState([]);
+    const [cardObjs, setCardObjs] = useState([]);
+    const [shuffledCards, setShuffledCards] = useState([]);
 
     const [clickedCardIDs, setClickedCardIDs] = useState([]);
 
@@ -31,21 +32,23 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         // console.log(imgJson.data);
         const imgData = imgJson.data;
 
-        const imgUrls = [];
+        const cardObjs = [];
         if (imgData) {
             for (let i = 0; i < 12; i++) {
                 const entry = imgData[i];
                 // console.log(entry.images.downsized.url);
-                imgUrls.push({
+                cardObjs.push({
                     id: crypto.randomUUID(),
                     url: entry.images.fixed_height_small.url
                 });
             }
-            setCardImgUrls(imgUrls);
+            setCardObjs(cardObjs);
+            setShuffledCards(getShuffledCards(cardObjs));
         }
     }
 
     useEffect(() => {
+        console.log('get giphy images');
         getGiphyImages();
     }, []);
 
@@ -72,13 +75,12 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         ], 1750);
     }, [currScore])
 
-    function shuffleCardImgURLs() {
-        // const shuffled = cards.slice();
-        if (cardImgUrls.length === 0) {
+    function getShuffledCards(cardObjArr) {
+        if (cardObjArr.length === 0) {
             return [];
         }
 
-        const shuffled = cardImgUrls.slice();
+        const shuffled = cardObjArr.slice();
         // Durstenfeld shuffle from StackOverflow.
         for (let i = shuffled.length -1; i >= 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -87,26 +89,26 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         return shuffled;
     }
 
-    function createRandomCardDraw() {
-        const shuffledCards = shuffleCardImgURLs();
-        return (
-            <>
-            { !shuffledCards.length ? <div>{statusText}</div> :
-                shuffledCards.map((obj, i) => {
-                    return (
-                        <div
-                            className="card"
-                            key={obj.id}
-                            onClick={() => { onCardClick(obj.id); }}
-                        >
-                            <img src={obj.url} />
-                        </div>
-                    )
-                })
-            }
-            </>
-        )
-    }
+    // function createRandomCardDraw() {
+    //     const shuffledCards = getShuffledCards();
+    //     return (
+    //         <>
+    //         { !shuffledCards.length ? <div>{statusText}</div> :
+    //             shuffledCards.map((obj, i) => {
+    //                 return (
+    //                     <div
+    //                         className="card"
+    //                         key={obj.id}
+    //                         onClick={() => { onCardClick(obj.id); }}
+    //                     >
+    //                         <img src={obj.url} />
+    //                     </div>
+    //                 )
+    //             })
+    //         }
+    //         </>
+    //     )
+    // }
 
     function resetGame() {
         setPrevScore(currScore);
@@ -119,7 +121,7 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         const alreadyClicked = clickedCardIDs.find((clickedID) => { return cardID === clickedID; });
         if (alreadyClicked) {
             // End game run.
-            console.log("LOSEER");
+            console.log("LOSER");
             if (currScore > bestScore) {
                 setBestScore(currScore);
             }
@@ -131,10 +133,9 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
                 ...clickedCardIDs,
                 cardID
             ]);
+            setShuffledCards(getShuffledCards(cardObjs));
         }
     }
-
-    const randomCardDraw = createRandomCardDraw();
 
     return (
         <div id="game-output">
@@ -145,7 +146,20 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
                 Best Score: {bestScore}
             </div>
             <div id="card-draw">
-                {randomCardDraw}
+                {/* {randomCardDraw}  */}
+                { !shuffledCards.length ? <div>{statusText}</div> :
+                shuffledCards.map((obj, i) => {
+                    return (
+                        <div
+                            className="card"
+                            key={obj.id}
+                            onClick={() => { onCardClick(obj.id); }}
+                        >
+                            <img src={obj.url} />
+                        </div>
+                    )
+                })
+            }
             </div>
         </div>
     )
