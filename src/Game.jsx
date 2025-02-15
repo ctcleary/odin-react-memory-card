@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './Game.css';
+import GIPHY_API_KEY from './GIPHY_API_KEY';
 import DEFAULT_RESPONSE_DATA from './DEFAULT_RESPONSE_DATA';
 
 const SEARCH_DELAY = 1000;
@@ -28,7 +29,11 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
 
     async function getGiphyImages() {
         const response = await fetch(
-            `https://api.giphy.com/v1/gifs/search?api_key=${import.meta.env.VITE_GIPHY_API_KEY}&rating=g&q=${searchStr}`,
+            // This is how it should be done.
+            // `https://api.giphy.com/v1/gifs/search?api_key=${import.meta.env.VITE_GIPHY_API_KEY}&rating=g&q=${searchStr}`,
+
+            // This is what I have to do for the sake of showing my assignment.
+            `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&rating=g&q=${searchStr}`,
             {
                 mode: 'cors'
             }

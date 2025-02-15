@@ -24,4 +24,3 @@ dist-ssr
 *.sln
 *.sw?
 
-src/GIPHY_API_KEY.js
