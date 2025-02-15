@@ -29,7 +29,7 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
 
     async function getGiphyImages() {
         const response = await fetch(
-            `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&rating=g&q=${searchStr}`,
+            `https://api.giphy.com/v1/gifs/search?api_key=${import.meta.env.VITE_GIPHY_API_KEY}&rating=g&q=${searchStr}`,
             {
                 mode: 'cors'
             }
