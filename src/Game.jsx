@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './Game.css';
 import GIPHY_API_KEY from './GIPHY_API_KEY';
 
+const SEARCH_DELAY = 1000;
 
 function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     const [hasPlayed, setHasPlayed] = useState(false);
@@ -73,7 +74,7 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         // Delay new search for images when searchStr changes
         const timeout = setTimeout(() => {
             getGiphyImages();
-        }, 500);
+        }, SEARCH_DELAY);
 
         return () => {
             clearTimeout(timeout);
@@ -144,6 +145,7 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         
         if (currScore + 1 >= cardCount) {
             flashCoverEl();
+            setBestScore(currScore + 1);
             resetGame(currScore + 1);
         } else {
             setClickedCardIDs([
@@ -168,7 +170,12 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
                 </label>
             </div>
             <div id="cover">
-                { prevScore >= cardCount ? <>You win!</> :
+                { prevScore >= cardCount ? 
+                    <>
+                    You win!
+                    Your Score: {prevScore}
+                    </> 
+                    :
                     <>
                     Oops! Try again!<br/>
                     Your Score: {prevScore}<br/>
