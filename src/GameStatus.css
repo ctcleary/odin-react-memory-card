@@ -1,5 +1,9 @@
 #game-status {
     text-align: center;
+
+    border-radius: 10px;
+    background: darkgreen;
+    color: goldenrod;
 }
 
 #game-status h1 {
