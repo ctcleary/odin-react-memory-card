@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import './Game.css';
-import GIPHY_API_KEY from './GIPHY_API_KEY';
 import DEFAULT_RESPONSE_DATA from './DEFAULT_RESPONSE_DATA';
 
 const SEARCH_DELAY = 1000;
