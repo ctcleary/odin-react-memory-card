@@ -22,6 +22,11 @@
     margin-left: 1rem;
 }
 
+.error-note {
+    color: #777;
+    font-style: italic;
+}
+
 #card-draw {
     position: relative;
     display: flex;

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import './Game.css';
 import GIPHY_API_KEY from './GIPHY_API_KEY';
+import DEFAULT_RESPONSE_DATA from './DEFAULT_RESPONSE_DATA';
 
 const SEARCH_DELAY = 1000;
 
 function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
+    const [searchDisabled, setSearchDisabled] = useState(false);
+
     const [hasPlayed, setHasPlayed] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [hasChangedCount, setHasChangedCount] = useState(false);
@@ -34,11 +37,16 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         if (!response.ok) {
             console.log('Error fetching giphy data.', response.status)
             setStatusText(fetchError);
-            return;
+            setSearchDisabled(true);
         }
+        let imgData;
         const imgJson = await response.json();
-        // console.log(imgJson.data);
-        const imgData = imgJson.data;
+        if (!imgJson || imgJson.data.length) {
+            imgData = imgJson.data;
+        } else {
+            console.log('Using DEFAULT_RESPONSE_DATA');
+            imgData = DEFAULT_RESPONSE_DATA;
+        }
 
         if (imgData.length === 0) {
             console.log('No results');
@@ -162,17 +170,25 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
             <div id="search-section">
                 <label>
                     Change Image Search:
-                    <input type="text" value={searchStr} onChange={(evt) => { setSearchStr(evt.target.value); }} />
+                    <input type="text" value={searchStr} 
+                        onChange={(evt) => { setSearchStr(evt.target.value); }} 
+                        disabled={searchDisabled}
+                    />
                 </label>
                 <label>
                     Number of Cards:
-                    <input type="number" value={cardCount} onChange={(evt => { setCardCount(parseInt(evt.target.value, 10)); })} />
+                    <input type="number" value={cardCount}
+                        onChange={(evt => { setCardCount(parseInt(evt.target.value, 10)); })} 
+                        disabled={searchDisabled}
+                    />
                 </label>
+                <br/>
+                { searchDisabled && <span className="error-note">There was an error fetching data, search is currently disabled.</span> }
             </div>
             <div id="cover">
                 { prevScore >= cardCount ? 
                     <>
-                    You win!
+                    You win!<br/>
                     Your Score: {prevScore}
                     </> 
                     :
