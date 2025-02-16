@@ -13,6 +13,8 @@ const RESET_GAME_TYPE = {
 function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     const [searchDisabled, setSearchDisabled] = useState(false);
 
+    const [cardsDisabled, setCardsDisabled] = useState(false);
+
     const [hasPlayed, setHasPlayed] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
     const [hasChangedCount, setHasChangedCount] = useState(false);
@@ -115,8 +117,9 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     // }, [currScore])
 
     function flashCoverEl() {
+        setCardsDisabled(true);
         const coverEl = document.querySelector('#cover');
-        coverEl.animate([
+        const anim = coverEl.animate([
             {
                 display: 'grid',
                 opacity: 0
@@ -129,6 +132,10 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
                 opacity: 0
             }
         ], 1750);
+        anim.addEventListener('finish', () => {
+            console.log('animation end!');
+            setCardsDisabled(false);
+        });
     }
 
     function getShuffledCards(cardObjArr) {
@@ -155,6 +162,10 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     }
 
     function onCardClick(cardID) {
+        if (cardsDisabled) {
+            return;
+        }
+
         setHasPlayed(true);
         const alreadyClicked = clickedCardIDs.find((clickedID) => { return cardID === clickedID; });
         if (alreadyClicked) {
