@@ -4,6 +4,11 @@ import GIPHY_API_KEY from './GIPHY_API_KEY';
 import DEFAULT_RESPONSE_DATA from './DEFAULT_RESPONSE_DATA';
 
 const SEARCH_DELAY = 1000;
+const RESET_GAME_TYPE = {
+    LOSS: 'loss',
+    WIN: 'win',
+    SEARCH: 'search',
+}
 
 function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     const [searchDisabled, setSearchDisabled] = useState(false);
@@ -74,17 +79,22 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     }
 
     useEffect(() => {
+        getGiphyImages();
+    }, []);
+
+    useEffect(() => {
         if (searchStr !== 'corgis' ) { setHasSearched(true); }
         if (cardCount !== 12) { setHasChangedCount(true); }
 
         // Only immediately search if nothing has happened.
         if (!hasPlayed && !hasSearched && !hasChangedCount) {
             getGiphyImages();
-            return () => {};
+            return;
         }
 
         // Delay new search for images when searchStr changes
         const timeout = setTimeout(() => {
+            resetGame(currScore, RESET_GAME_TYPE.SEARCH);
             getGiphyImages();
         }, SEARCH_DELAY);
 
@@ -95,14 +105,14 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
     }, [searchStr, cardCount]);
 
     
-    useEffect(() => {
-        // Only run when currScore is reset to 0, and not on initial mount
-        if (currScore !== 0 || !hasPlayed) {
-            return;
-        }
+    // useEffect(() => {
+    //     // Only run when currScore is reset to 0, and not on initial mount
+    //     if (currScore !== 0 || !hasPlayed) {
+    //         return;
+    //     }
 
-        flashCoverEl();
-    }, [currScore])
+    //     flashCoverEl();
+    // }, [currScore])
 
     function flashCoverEl() {
         const coverEl = document.querySelector('#cover');
@@ -135,8 +145,11 @@ function Game({ currScore, setCurrScore, bestScore, setBestScore }) {
         return shuffled;
     }
 
-    function resetGame(score) {
-        setPrevScore(score);
+    function resetGame(score, resetType = null) {
+        if (!resetType || resetType !== RESET_GAME_TYPE.SEARCH) {
+            setPrevScore(score);
+            flashCoverEl();
+        }
         setCurrScore(0);
         setClickedCardIDs([]);
     }
